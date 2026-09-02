@@ -1,0 +1,2 @@
+import 'dart:convert';import 'dart:io';
+Future<Map<String,dynamic>> calculateDaliuren(Map<String,dynamic> input,{String enginePath='engine.cjs'})async{final p=await Process.start('node',[enginePath]);p.stdin.write(jsonEncode(input));await p.stdin.close();final stdout=await utf8.decoder.bind(p.stdout).join();final stderr=await utf8.decoder.bind(p.stderr).join();final code=await p.exitCode;final env=jsonDecode(stdout) as Map<String,dynamic>;if(code!=0||env['ok']!=true)throw StateError((env['error']??stderr).toString());return env['data'] as Map<String,dynamic>;}

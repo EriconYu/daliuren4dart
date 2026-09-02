@@ -1,0 +1,2 @@
+import 'package:test/test.dart';import 'package:daliuren4dart/daliuren4dart.dart';
+void main(){test('smoke',()async{final r=await calculateDaliuren({'date':'2026-04-10','hour':14,'minute':30,'timezone':'Asia/Shanghai'});expect((r['gongInfos'] as List).length,12);});test('late zi',()async{final a=await calculateDaliuren({'date':'2026-04-10','hour':23,'minute':30,'timezone':'Asia/Shanghai'}),b=await calculateDaliuren({'date':'2026-04-11','hour':0,'minute':30,'timezone':'Asia/Shanghai'});expect((a['dateInfo'] as Map)['ganZhi'],(b['dateInfo'] as Map)['ganZhi']);});}
