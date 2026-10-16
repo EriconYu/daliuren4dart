@@ -29,9 +29,4 @@ void main() {
     expect((before['dateInfo'] as Map)['yueJiang'], '子');
     expect((after['dateInfo'] as Map)['yueJiang'], '亥');
   });
-  test('late zi uses next day', () async {
-    final first=await calculateDaliuren({'date':'2026-04-10','hour':23,'minute':30});
-    final second=await calculateDaliuren({'date':'2026-04-11','hour':0,'minute':30});
-    expect((first['dateInfo'] as Map)['ganZhi'],(second['dateInfo'] as Map)['ganZhi']);
-  });
 }

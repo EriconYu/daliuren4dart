@@ -1,7 +1,43 @@
-import 'dart:convert';import 'dart:io';import 'dart:isolate';import 'package:tyme/tyme.dart' show SolarTime;
-const g=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'],z=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'],jiang=['贵人','腾蛇','朱雀','六合','勾陈','青龙','天空','白虎','太常','玄武','太阴','天后'],short=['贵','蛇','雀','合','勾','龙','空','虎','常','玄','阴','后'],jian=['建','除','满','平','定','执','破','危','成','收','开','闭'],chang=['长生','沐浴','冠带','临官','帝旺','衰','病','死','墓','绝','胎','养'];
-const jigong={'甲':'寅','乙':'辰','丙':'巳','戊':'巳','丁':'未','己':'未','庚':'申','辛':'戌','壬':'亥','癸':'丑'},yj={'雨水':'亥','惊蛰':'亥','春分':'戌','清明':'戌','谷雨':'酉','立夏':'酉','小满':'申','芒种':'申','夏至':'未','小暑':'未','大暑':'午','立秋':'午','处暑':'巳','白露':'巳','秋分':'辰','寒露':'辰','霜降':'卯','立冬':'卯','小雪':'寅','大雪':'寅','冬至':'丑','小寒':'丑','大寒':'子','立春':'子'},yn={'亥':'登明','戌':'河魁','酉':'从魁','申':'传送','未':'小吉','午':'胜光','巳':'太乙','辰':'天罡','卯':'太冲','寅':'功曹','丑':'大吉','子':'神后'};
-const yang={'甲':'丑','戊':'丑','庚':'丑','乙':'子','己':'子','丙':'亥','丁':'亥','壬':'巳','癸':'巳','辛':'午'},yin={'甲':'未','戊':'未','庚':'未','乙':'申','己':'申','丙':'酉','丁':'酉','壬':'卯','癸':'卯','辛':'寅'},yima={'寅':'申','午':'申','戌':'申','申':'寅','子':'寅','辰':'寅','巳':'亥','酉':'亥','丑':'亥','亥':'巳','卯':'巳','未':'巳'},ding={'甲子':'卯','甲戌':'丑','甲申':'亥','甲午':'酉','甲辰':'未','甲寅':'巳'},tian={'未':'辰','丑':'辰','午':'寅','子':'寅','巳':'子','亥':'子','辰':'戌','戌':'戌','卯':'申','酉':'申','申':'午','寅':'午'},wx={'子':'水','丑':'土','寅':'木','卯':'木','辰':'土','巳':'火','午':'火','未':'土','申':'金','酉':'金','戌':'土','亥':'水','甲':'木','乙':'木','丙':'火','丁':'火','戊':'土','己':'土','庚':'金','辛':'金','壬':'水','癸':'水'},cstart={'甲':'亥','乙':'午','丙':'寅','丁':'酉','戊':'寅','己':'酉','庚':'巳','辛':'子','壬':'申','癸':'卯'};
-Map<String,dynamic>? _table;Future<Map<String,dynamic>> table()async{if(_table!=null)return _table!;final u=await Isolate.resolvePackageUri(Uri.parse('package:daliuren4dart/sanchuan.json'));_table=jsonDecode(await File.fromUri(u!).readAsString());return _table!;}List<String> get jz=>List.generate(60,(i)=>g[i%10]+z[i%12]);int mod(int n,int d)=>(n%d+d)%d;String at(String s,int i)=>s[i];List<String> xun(String p){final st=jz.indexOf(p)~/10*10,u={for(var i=st;i<st+10;i++)at(jz[i],1)};return[jz[st],z.where((b)=>!u.contains(b)).join()];}String relation(String a,String b){if(a==b)return'兄弟';const s={'木':'火','火':'土','土':'金','金':'水','水':'木'},k={'木':'土','土':'水','水':'火','火':'金','金':'木'};if(s[a]==b)return'子孙';if(k[a]==b)return'妻财';if(s[b]==a)return'父母';return'官鬼';}String cs(String a,String b){var n=mod(z.indexOf(b)-z.indexOf(cstart[a]!),12);if(g.indexOf(a)%2==1)n=mod(z.indexOf(cstart[a]!)-z.indexOf(b),12);return chang[n];}String wang(String b,String w){const mm={'寅':'木','卯':'木','巳':'火','午':'火','申':'金','酉':'金','亥':'水','子':'水','辰':'土','未':'土','戌':'土','丑':'土'},c=['木','火','土','金','水'];final m=mm[b]!,i=c.indexOf(m);return w==m?'旺':w==c[(i+1)%5]?'相':w==c[(i+4)%5]?'休':w==c[(i+3)%5]?'囚':'死';}String tao(String b)=>'寅午戌'.contains(b)?'卯':'申子辰'.contains(b)?'酉':'巳酉丑'.contains(b)?'午':'子';
-Future<Map<String,dynamic>> calculateDaliuren(Map<String,dynamic> i,{String? enginePath})async{final ds=i['date'];if(ds is! String||!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(ds))throw ArgumentError('date 必须是 YYYY-MM-DD');final p=ds.split('-').map(int.parse).toList(),h=i['hour'],mi=i['minute']??0;if(h is! int||mi is! int)throw ArgumentError('时间无效');final dt=DateTime(p[0],p[1],p[2],h,mi);if(dt.year!=p[0]||dt.month!=p[1]||dt.day!=p[2])throw ArgumentError('日期无效');final st=SolarTime.fromYmdHms(p[0],p[1],p[2],h,mi,0),scy=st.getSixtyCycleHour(),pillars=[scy.getYear().toString(),scy.getMonth().toString(),scy.getDay().toString(),scy.getSixtyCycle().toString()],mg=yj[st.getTerm().toString()]!,dg=at(pillars[2],0),dz=at(pillars[2],1),hb=at(pillars[3],1),mz=at(pillars[1],1),xu=xun(pillars[2]),day='卯辰巳午未申'.contains(hb);final hp=List.filled(12,''),hi=z.indexOf(hb),yi=z.indexOf(mg);for(var n=0;n<12;n++)hp[mod(hi+n,12)]=z[mod(yi+n,12)];final gui=(day?yang:yin)[dg]!,gp=hp.indexOf(gui),fw='亥子丑寅卯辰'.contains(z[gp]),jb=List.filled(12,'');for(var n=0;n<12;n++)jb[mod(gp+(fw?n:-n),12)]=jiang[n];List<dynamic> lesson(String lower){final up=hp[z.indexOf(lower)];return[up+lower,jb[hp.indexOf(up)]];}final k1=lesson(jigong[dg]!),k2=lesson(at(k1[0],0)),k3=lesson(dz),k4=lesson(at(k3[0],0)),dun={for(final b in z)b:''};for(var n=0;n<10;n++)dun[z[mod(z.indexOf(at(xu[0],1))+n,12)]]=g[n];final jc=<String,String>{},js=hp.indexOf(mz);for(var n=0;n<12;n++)jc[z[mod(js+n,12)]]=jian[n];final en=(await table())[pillars[2]][z.indexOf(at(k1[0],0))],combo=en['干支组合'] as String,method=en['格局'];List<dynamic> tr(String b)=>[b,jb[hp.indexOf(b)],relation(wx[dg]!,wx[b]!),dun[b]];final chu=tr(at(combo,0)),zhong=tr(at(combo,1)),mo=tr(at(combo,2)),gong=<Map<String,dynamic>>[],dip=<String,String>{},tpm=<String,String>{},tjm=<String,String>{};for(var n=0;n<12;n++){dip['$n']=z[n];tpm['$n']=hp[n];tjm['$n']=jb[n];gong.add({'diZhi':z[n],'tianZhi':hp[n],'tianJiang':jb[n],'tianJiangShort':short[jiang.indexOf(jb[n])],'dunGan':dun[z[n]],'changSheng':cs(dg,hp[n]),'wuXing':wx[hp[n]],'wangShuai':wang(mz,wx[hp[n]]!),'jianChu':jc[z[n]]});}final di={'solarDate':'${p[0]}年${p[1]}月${p[2]}日 ${h}时${mi}分','bazi':pillars.join(' '),'ganZhi':{'year':pillars[0],'month':pillars[1],'day':pillars[2],'hour':pillars[3]},'yueJiang':mg,'yueJiangName':yn[mg],'xun':xu[0],'kongWang':[at(xu[1],0),at(xu[1],1)],'yiMa':yima[dz],'dingMa':ding[xu[0]],'tianMa':tian[mz],'diurnal':day};return {'algorithmVersion':'daliuren-shizhan-v1','dateInfo':di,'tianDiPan':{'diPan':dip,'tianPan':tpm,'tianJiang':tjm},'siKe':{'yiKe':k1,'erKe':k2,'sanKe':k3,'siKe':k4},'sanChuan':{'chu':chu,'zhong':zhong,'mo':mo,'method':method},'keTi':{'method':method,'subTypes':[method],'extraTypes':[]},'keName':'${pillars[2]}日 干上${at(k1[0],0)}','shenSha':[{'name':'桃花','value':tao(dz),'description':'主桃花、感情、人缘。'}],'gongInfos':gong,'dunGan':dun,'jianChu':jc};}
-Future<Map<String,dynamic>> canonicalDaliuren(Map<String,dynamic> i,{String? enginePath})async{final r=await calculateDaliuren(i),di=r['dateInfo'],basic={'占测时间':di['solarDate'],'昼夜':di['diurnal']?'昼占':'夜占','四柱':di['bazi'],'课式':'${r['keName']} / ${r['keTi']['method']}课','月将':di['yueJiang'],'关键状态':{'空亡':di['kongWang'],'驿马':di['yiMa'],'丁马':di['dingMa'],'天马':di['tianMa']}},lessons=<Map<String,dynamic>>[];for(var n=0;n<4;n++){final x=r['siKe'][['yiKe','erKe','sanKe','siKe'][n]];lessons.add({'课别':['一课 (干上)','二课 (干阴)','三课 (支上)','四课 (支阴)'][n],'乘将':x[1],'上神':at(x[0],0),'下神':at(x[0],1)});}final trans=<Map<String,dynamic>>[];for(var n=0;n<3;n++){final x=r['sanChuan'][['chu','zhong','mo'][n]];trans.add({'传序':['初传 (发端)','中传 (移易)','末传 (归计)'][n],'地支':x[0],'天将':x[1],'六亲':x[2],'遁干':x[3]==''?'-':x[3]});}return {'基本信息':basic,'四课':lessons,'三传':trans,'天地盘':(r['gongInfos'] as List).map((x)=>{'地盘':x['diZhi'],'五行':x['wuXing'],'旺衰':x['wangShuai'],'天盘':x['tianZhi'],'天将':x['tianJiang'],'遁干':x['dunGan']==''?'-':x['dunGan'],'长生十二神':x['changSheng']}).toList()};}
+import 'dart:convert';
+import 'dart:io';
+import 'dart:isolate';
+
+Future<String> _enginePath(String? explicitPath) async {
+  if (explicitPath != null) return explicitPath;
+  final uri = await Isolate.resolvePackageUri(
+    Uri.parse('package:daliuren4dart/engine.cjs'),
+  );
+  if (uri == null || uri.scheme != 'file') {
+    throw StateError('Unable to locate the bundled daliuren engine');
+  }
+  return uri.toFilePath();
+}
+
+Future<Map<String, dynamic>> _run(
+  Map<String, dynamic> input,
+  String? enginePath,
+) async {
+  final process = await Process.start('node', [await _enginePath(enginePath)]);
+  process.stdin.write(jsonEncode(input));
+  await process.stdin.close();
+  final stdout = await utf8.decoder.bind(process.stdout).join();
+  final stderr = await utf8.decoder.bind(process.stderr).join();
+  final code = await process.exitCode;
+  final envelope = jsonDecode(stdout) as Map<String, dynamic>;
+  if (code != 0 || envelope['ok'] != true) {
+    throw StateError((envelope['error'] ?? stderr).toString());
+  }
+  return envelope;
+}
+
+Future<Map<String, dynamic>> calculateDaliuren(
+  Map<String, dynamic> input, {
+  String? enginePath,
+}) async =>
+    (await _run(input, enginePath))['data'] as Map<String, dynamic>;
+
+Future<Map<String, dynamic>> canonicalDaliuren(
+  Map<String, dynamic> input, {
+  String? enginePath,
+}) async =>
+    (await _run(input, enginePath))['canonical'] as Map<String, dynamic>;
