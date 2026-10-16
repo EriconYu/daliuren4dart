@@ -29,4 +29,22 @@ void main() {
     expect((before['dateInfo'] as Map)['yueJiang'], '子');
     expect((after['dateInfo'] as Map)['yueJiang'], '亥');
   });
+  test('late Zi hour uses next day', () async {
+    final lateZi = await calculateDaliuren({
+      'date': '2026-04-10',
+      'hour': 23,
+      'minute': 30,
+      'timezone': 'Asia/Shanghai',
+    });
+    final nextDay = await calculateDaliuren({
+      'date': '2026-04-11',
+      'hour': 0,
+      'minute': 30,
+      'timezone': 'Asia/Shanghai',
+    });
+    expect(
+      (lateZi['dateInfo'] as Map)['ganZhi'],
+      (nextDay['dateInfo'] as Map)['ganZhi'],
+    );
+  });
 }
